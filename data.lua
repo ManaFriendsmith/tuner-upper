@@ -668,11 +668,25 @@ tune_up_data.recipes["quality-module"] = {
     ingredients = {{{"stepper-motor", 2}, {"electronic-circuit", 1, "byproduct"}}, {{"advanced-circuit", 2}, {"electronic-circuit", 1, "byproduct"}}}
 }
 
+tune_up_data.recipes["wood"] = {
+    category = "purification",
+    count = 2,
+    energy_required = 1,
+    ingredients = {{{"nutrients", 3}, {"wood", 1}, {"water", 50}}, {{"sulfur", 1}, {"wood", 1}, {"water", 50}}}
+}
+
 tune_up_data.recipes["coal"] = {
     category = "purification",
     count = 2,
     energy_required = 1,
     ingredients = {{{"sulfur", 1}, {"heavy-oil", 5}}}
+}
+
+tune_up_data.recipes["carbon"] = {
+    category = "purification",
+    count = 2,
+    energy_required = 2,
+    ingredients = {{{"coal", 2}, {"sulfuric-acid", 5}}}
 }
 
 tune_up_data.recipes["sulfur"] = {
