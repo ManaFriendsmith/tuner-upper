@@ -1,10 +1,11 @@
 local rm = require("__pf-functions__/recipe-manipulation")
+local tm = require("__pf-functions__/technology-manipulation")
 local misc = require("__pf-functions__/misc")
 
 local function allow_recycling(recipe)
     if recipe.force_auto_recycle then return true end
     if (recipe.auto_recycle == false) or (recipe.auto_recycle_bypass == false) then return false end
-    if not recipe.category then recipe.category = "crafting" end
+    if not recipe.category then recipe.categories={"crafting"} end
     if not data.raw["recipe-category"][recipe.category] then return false end
     if data.raw["recipe-category"][recipe.category].can_recycle == false then return false end
     return true
@@ -26,7 +27,7 @@ local function get_canonical_recipe(item)
     --if exactly one valid recipe produces the item with no byproducts, use that.
     local candidate = nil
     for k, recipe in pairs(data.raw.recipe) do
-        if recipe.results and #recipe.results == 1 and allow_recycling(recipe) then
+        if recipe.results and #recipe.results == 1 and recipe.auto_recycle == false then
             local ok = false
             local solids = 0
             for k2, product in pairs(recipe.results) do --not taking risks if someone uses weird keys for their tables.
@@ -37,6 +38,13 @@ local function get_canonical_recipe(item)
                     end
                 end
             end
+
+            for k2, v2 in pairs(recipe.categories or {"crafting"}) do
+                if v2 == "recycling" then
+                    ok = false
+                end
+            end
+
             if (solids == 1) and ok then
                 if candidate then
                     candidate = nil
@@ -95,7 +103,7 @@ for k, v in pairs(tune_up_data.recipes) do
                 subgroup = "tuning-" .. item_p.subgroup,
                 order = item_p.order,
                 hide_from_player_crafting = true,
-                category = v.category,
+                categories = v.categories,
                 enabled = v.enabled,
                 energy_required = v.energy_required or (type(original_recipe) == "string" and original_recipe.energy_required) or 5,
                 ingredients = {},
@@ -105,10 +113,6 @@ for k, v in pairs(tune_up_data.recipes) do
                 allow_as_intermediate = false,
                 auto_recycle = false
             }
-
-            if v.result_is_always_fresh then
-                new_recipe.result_is_always_fresh = true
-            end
 
             if mods["space-age"] then
                 new_recipe.surface_conditions = v.surface_conditions
@@ -142,23 +146,45 @@ for k, v in pairs(tune_up_data.recipes) do
                 end
             end
 
+            if v.result_is_always_fresh then
+                for k, v in pairs(new_recipe.results) do
+                    v.always_fresh = true
+                end
+            end
+
             data:extend({new_recipe})
         end
     end
 end
 
-data.raw.furnace.recycler.module_slots = 2
+if not data.raw.furnace.recycler.effect_receiver then
+    data.raw.furnace.recycler.effect_receiver = {}
+end
+data.raw.furnace.recycler.effect_receiver.base_effect = {quality=-0.16}
+data.raw.furnace.recycler.effect_receiver.quality_limits = {low=-100, high=0}
+for k, v in pairs(data.raw.quality) do
+    if v.name  ~= normal then
+        v.previous_probability = 1
+    end
+end
+
+data.raw.module["speed-module"].effect.quality = -0.02
+data.raw.module["speed-module-2"].effect.quality = -0.03
+data.raw.module["speed-module-3"].effect.quality = -0.05
 
 if mods["space-age"] then
-    data.raw["assembling-machine"]["crusher"].allowed_effects = {"consumption", "speed", "pollution", "productivity"}
-
     data.raw.recipe["casting-low-density-structure"].hidden = true
     data.raw.recipe["casting-low-density-structure"].hidden_in_factoriopedia = true
-    data.raw.recipe["low-density-structure"].category = "pressing"
+    data.raw.recipe["low-density-structure"].categories={"crafting", "metallurgy"}
 
-    data.raw.technology["low-density-structure-productivity"].max_level = 10
-    data.raw.technology["processing-unit-productivity"].max_level = 10
-    data.raw.technology["rocket-fuel-productivity"].max_level = 10
+    tm.RemoveUnlock("foundry", "casting-low-density-structure")
+    tm.RemoveUnlock("low-density-structure-productivity", {type="change-recipe-productivity",recipe="casting-low-density-structure",change=0.1})
+
+    if not (mods["pf-sa-compat"] and misc.difficulty > 1) then
+        data.raw.technology["low-density-structure-productivity"].max_level = 10
+        data.raw.technology["processing-unit-productivity"].max_level = 10
+        data.raw.technology["rocket-fuel-productivity"].max_level = 10
+    end
 end
 
 local new_groups = {}
@@ -186,29 +212,75 @@ if settings.startup["tuner-upper-buff-quality-science"] then
     end
 end
 
-if settings.startup["tuner-upper-nerf-quality-power"] then
-    for k, v in pairs(data.raw.quality) do
-        v.default_multiplier = 1 + (v.level * 0.1)
-        v.equipment_grid_width_bonus = 0
+for k, v in pairs(data.raw.quality) do
+    if not v.default_multiplier then
+        v.default_multiplier = 1 + (0.3 * v.level)
     end
 
-    --quality combat robots are maybe ok with more accessible/deterministic quality but need to get back the health they lost from the quality nerf
-    data.raw["combat-robot"].defender.max_health = 100
-    data.raw["combat-robot"].distractor.max_health = 250
-    data.raw["combat-robot"].destroyer.max_health = 150
+    v.module_quality_multiplier = ((((v.module_speed_multiplier or v.default_multiplier) - 1) * 2) / 3) + 1
+end
+
+if settings.startup["tuner-upper-nerf-quality-power"] then
+    for k, v in pairs(data.raw.quality) do
+        --v.default_multiplier = 1 + (v.level * 0.1)
+        v.equipment_grid_width_bonus = 0
+
+        v.crafting_machine_speed_multiplier = (((v.crafting_machine_speed_multiplier or v.default_multiplier) - 1) / 3) + 1
+        if v.crafting_machine_energy_usage_multiplier then
+            v.crafting_machine_energy_usage_multiplier = ((v.crafting_machine_energy_usage_multiplier - 1) / 3) + 1
+        end
+        v.module_speed_multiplier = (((v.module_speed_multiplier or v.default_multiplier) - 1) / 3) + 1
+        v.module_productivity_multiplier = (((v.module_productivity_multiplier or v.default_multiplier) - 1) / 3) + 1
+        v.module_consumption_multiplier = (((v.module_consumption_multiplier or v.default_multiplier) - 1) / 3) + 1
+    end
+
+    for k, v in pairs(data.raw["assembling-machine"]) do
+        if v.crafting_speed_quality_multiplier then
+            for k2, v2 in pairs(v.crafting_speed_quality_multiplier) do
+                v.crafting_speed_quality_multiplier[k2] = ((v2 - 1) / 3) + 1
+            end
+        end
+        if v.energy_usage_quality_multiplier then
+            for k2, v2 in pairs(v.energy_usage_quality_multiplier) do
+                v.energy_usage_quality_multiplier[k2] = ((v2 - 1) / 3) + 1
+            end
+        end
+    end
+
+    for k, v in pairs(data.raw["furnace"]) do
+        if v.crafting_speed_quality_multiplier then
+            for k2, v2 in pairs(v.crafting_speed_quality_multiplier) do
+                v.crafting_speed_quality_multiplier[k2] = ((v2 - 1) / 3) + 1
+            end
+        end
+        if v.energy_usage_quality_multiplier then
+            for k2, v2 in pairs(v.energy_usage_quality_multiplier) do
+                v.energy_usage_quality_multiplier[k2] = ((v2 - 1) / 3) + 1
+            end
+        end
+    end
+
+    for k, v in pairs(data.raw["rocket-silo"]) do
+        if v.crafting_speed_quality_multiplier then
+            for k2, v2 in pairs(v.crafting_speed_quality_multiplier) do
+                v.crafting_speed_quality_multiplier[k2] = ((v2 - 1) / 3) + 1
+            end
+        end
+        if v.energy_usage_quality_multiplier then
+            for k2, v2 in pairs(v.energy_usage_quality_multiplier) do
+                v.energy_usage_quality_multiplier[k2] = ((v2 - 1) / 3) + 1
+            end
+        end
+    end
 
     for k, v in pairs(data.raw.beacon) do
         v.distribution_effectivity_bonus_per_quality_level = v.distribution_effectivity_bonus_per_quality_level / 2
     end
-
-    data.raw.module["quality-module"].effect.quality = 0.4
-    data.raw.module["quality-module-2"].effect.quality = 0.55
-    data.raw.module["quality-module-3"].effect.quality = 0.8
-else
-    data.raw.module["quality-module"].effect.quality = 0.2
-    data.raw.module["quality-module-2"].effect.quality = 0.3
-    data.raw.module["quality-module-3"].effect.quality = 0.5
 end
+
+data.raw.module["quality-module"].effect.quality = 0.04
+data.raw.module["quality-module-2"].effect.quality = 0.06
+data.raw.module["quality-module-3"].effect.quality = 0.08
 
 --quality complexity is based on # of processing steps and it is really easy to hit 4 processes to up quality if you can mine uncommon ores directly.
 --also the current megabase meta is to use uncommon ore for science which means no foundries which is No Fun. if the first opportunity for uncommon items is at plates foundries are better bc more modules.

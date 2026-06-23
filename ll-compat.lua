@@ -2,175 +2,168 @@ local tm = require("__pf-functions__/technology-manipulation")
 
 if mods["LunarLandings"] then
     tune_up_data.recipes["ll-ion-logistic-robot"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"ll-rocket-control-unit", 1}, {"ll-aluminium-plate", 4}}, {{"rocket-control-unit", 1}, {"ll-aluminium-plate", 4}}}
     }
 
     tune_up_data.recipes["ll-ion-construction-robot"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"ll-rocket-control-unit", 1}, {"ll-aluminium-plate", 4}}, {{"rocket-control-unit", 1}, {"ll-aluminium-plate", 4}}}
     }
 
     tune_up_data.recipes["ll-ion-roboport"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
-      ingredients = {{{"ll-rocket-control-unit", 20}, {"flying-robot-frame", 10}, {"ll-aluminium-plate", 20}}}
+      ingredients = {{{"ll-rocket-control-unit", 20}, {"flying-robot-frame", 10}, {"ll-aluminium-plate", 20}}, {{"rocket-control-unit", 20}, {"flying-robot-frame", 10}, {"ll-aluminium-plate", 20}}}
     }
 
     tune_up_data.recipes["ll-rtg"] = {
-      category = "tuning-up",
-      count = 1,
-      energy_required = 5,
-      ingredients = {{{"uranium-238", 10}}}
-    }
-
-    tune_up_data.recipes["ll-rtg"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"uranium-238", 10}}}
     }
 
     tune_up_data.recipes["ll-core-extractor"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"electric-mining-drill", 1}, {"electric-engine-unit", 5}}}
     }
 
     tune_up_data.recipes["ll-arc-furnace"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"ll-heat-shielding", 5}, {"ll-alumina", 25}}}
     }
 
     tune_up_data.recipes["ll-heat-furnace"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"ll-heat-shielding", 5}, {"concrete", 20}}}
     }
 
     tune_up_data.recipes["ll-low-grav-assembling-machine"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"assembling-machine-3", 1}, {"ll-quantum-processor", 3}}}
     }
 
     tune_up_data.recipes["ll-oxygen-diffuser"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"engine-unit", 2}}}
     }
 
     tune_up_data.recipes["ll-quantum-resonator"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"processing-unit", 5}, {"lab", 10}, {"ll-astroflux", 15}}}
     }
 
     tune_up_data.recipes["ll-telescope"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"processing-unit", 5}, {"ll-blank-data-card", 5}}}
     }
 
     tune_up_data.recipes["ll-data-card"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 2,
       energy_required = 20,
       ingredients = {{{"ll-junk-data-card", 1}, {"ll-broken-data-card", 1, "byproduct"}}}
     }
 
     tune_up_data.recipes["ll-quantum-data-card"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 2,
       energy_required = 30,
       ingredients = {{{"ll-data-card", 1}, {"ll-junk-data-card", 1, "byproduct"}}}
     }
 
     tune_up_data.recipes["ll-blank-data-card"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 2,
       energy_required = 2,
       ingredients = {{{"ll-blank-data-card", 1}, {"electronic-circuit", 5}, {"ll-broken-data-card", 1, "byproduct"}}}
     }
 
     tune_up_data.recipes["ll-quantum-processor"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 2,
       energy_required = 6,
       ingredients = {{{"ll-blank-data-card", 1}, {"ll-aluminium-plate", 5}, {"ll-broken-data-card", 1, "byproduct"}}}
     }
 
     tune_up_data.recipes["ll-heat-shielding"] = {
-      category = "tuning-up",
+      categories={"tuning-up"},
       count = 1,
       energy_required = 5,
       ingredients = {{{"ll-alumina", 1}, {"ll-aluminium-plate", 1}}}
     }
 
     tune_up_data.recipes["ll-moon-rock"] = {
-      category = "purification",
+      categories={"purification"},
       count = 100,
       energy_required = 100,
       ingredients = {{{"ll-rich-moon-rock", 10}, {"uranium-238", 1}, {"ll-oxygen", 50}}}
     }
 
     tune_up_data.recipes["ll-silica"] = {
-      category = "purification",
+      categories={"purification"},
       count = 10,
       energy_required = 10,
       ingredients = {{{"ll-silica", 10}, {"sulfuric-acid", 30}, {"water", 30}}}
     }
 
     tune_up_data.recipes["ll-silicon"] = {
-      category = "purification",
+      categories={"purification"},
       count = 10,
       energy_required = 10,
       ingredients = {{{"ll-silica", 5}, {"nitric-acid", 30}, {"ll-astroflux", 1}}, {{"ll-silica", 5}, {"sulfuric-acid", 30}, {"ll-astroflux", 1}}}
     }
 
     tune_up_data.recipes["ll-rich-moon-rock"] = {
-      category = "purification",
+      categories={"purification"},
       count = 1000,
       energy_required = 1000,
       ingredients = {{{"ll-moon-rock", 500}, {"uranium-235", 1}, {"ll-oxygen", 500}}}
     }
 
     tune_up_data.recipes["ll-aluminium-ore"] = {
-      category = "purification",
+      categories={"purification"},
       count = 10,
       energy_required = 10,
       ingredients = {{{"ll-aluminium-ore", 10}, {"sulfuric-acid", 50}, {"stone", 1}}}
     }
 
     tune_up_data.recipes["ll-alumina"] = {
-      category = "purification",
+      categories={"purification"},
       count = 10,
       energy_required = 10,
       ingredients = {{{"ll-alumina", 10}, {"sulfuric-acid", 50}, {"coal", 1}}}
     }
 
     tune_up_data.recipes["ll-aluminium-plate"] = {
-      category = "purification",
+      categories={"purification"},
       count = 10,
       energy_required = 10,
       ingredients = {{{"ll-alumina", 1}, {"sulfuric-acid", 50}, {"copper-plate", 1}, {"iron-plate", 1}}}
     }
 
     tune_up_data.recipes["ll-superposed-polariton"] = {
-      category = "purification",
+      categories={"purification"},
       count = 1,
       energy_required = 100,
       ingredients = {{{"ll-superposed-polariton", 2}, {"ll-quantum-data-card", 1}, {"ll-right-polariton", 1, "force-byproduct"}, {"ll-up-polariton", 1, "force-byproduct"}, {"ll-junk-data-card", 1, "force-byproduct"}}}
@@ -197,10 +190,10 @@ if mods["LunarLandings"] then
 
         if not mods["pf-sa-compat"] then
                 tune_up_data.recipes["rocket-control-unit"] = {
-                  category = "tuning-up",
+                  categories={"tuning-up"},
                   count = 1,
                   energy_required = 3,
-                  ingredients = {{{"tracker", 1}}, {{"gyroscope", 1}, {"advanced-circuit", 1}}, {{"advanced-circuit", 1}, {"battery", 1}}}
+                  ingredients = {{{"tracker", 1}}, {{"gyro", 1}, {"advanced-circuit", 1}}, {{"advanced-circuit", 1}, {"battery", 1}}}
                 }
         end
     end

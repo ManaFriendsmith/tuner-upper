@@ -5,7 +5,7 @@
     "author": "planetfall",
     "homepage": "",
     "description": "Adds machines to improve the quality of most items. Makes the creation of high-quality items more economical but nerfs the baseline ways of getting quality, requiring new designs. Graphics created by hurricane046.",
-    "factorio_version": "2.0",
-    "dependencies": ["base >= 2.0", "quality", "? space-age", "pf-functions"],
+    "factorio_version": "2.1",
+    "dependencies": ["base >= 2.1", "quality", "? space-age", "pf-functions"],
     "quality_required": true
 }

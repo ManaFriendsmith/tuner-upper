@@ -5,8 +5,10 @@ This is a Factorio mod that reworks the quality mechanic. The point is to make q
 - There are 2 new machines, the Tune-Up Station and the Molecular Purifier, which have a high chance to upgrade the quality of an item at the cost of other resources.
 - The tune-up station upgrades crafted items and is generally pretty efficient but demands a variety of ingredients. The molecular purifier upgrades raw materials but is power and resource hungry.
 - Quality can never go up by more than one step per process. This means you only need one filter splitter for each production block with quality, or none if you can get the quality chance above 100%.
-- Recyclers still exist but don't accept quality modules, so they're kinda useless for most things :( You can still upcycle loop stuff but obviously it's much weaker.
+- Recyclers have a chance to downgrade the quality of items they process by 1 tier. Quality modules mitigate this and speed modules worsen it. Recyclers CANNOT increase quality.
 - Quality modules can still be used in regular production and are buffed so they aren't necessarily always worse than productivity modules.
+- Max level of LDS/Blue chip/Rocket fuel productivity researches is capped at 10; LDS casting is removed but the normal recipe from plates can be performed in the foundry.
+- The net effect of these changes is that upcycling is still about as good as it was before but there are other, better methods to get quality entities and materials.
 
 For example, let's say you want quality medium power poles. You can craft them with quality modules to get the occasional uncommon. To upgrade the normals you can combine them with green circuits in the tune-up station. If you want rares, well, you're going to need to combine the uncommons with uncommon green circuits (which can be sourced by tuning up normal green circuits, or crafting them from uncommon ingredients, or recycling something else uncommon (that it's now possible to deliberately produce at scale)...).
 
