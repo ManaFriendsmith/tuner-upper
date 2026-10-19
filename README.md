@@ -20,12 +20,15 @@ Also has optional settings to make quality science production valuable, nerf the
 
 - [pf-functions](https://github.com/ManaFriendsmith/pf-functions) - Library and some misc functionality that does not belong to any one content mod
 
+# RELATED
+
+- [pf-beacon-rework](https://github.com/ManaFriendsmith/pf-beacon-rework) - I designed these mods to complement each other although they can technically be used separately. If you are doing large-scale quality science production in the late game, the quality benefits of overclocked modules are hard to overstate.
+
 # KNOWN ISSUES
 
 - If you reduce a machine's quality chance mid-craft, it will output items at its default quality even if the lower quality chance is greater than 100%. This is true without this mod but is not usually an issue because of the ubiquity of quality filter splitters. You can get around this by ensuring the machine is not crafting before messing with its modules or just having filters anyway. This is ["working as intended for 2.0 and fixed in 2.1"](https://forums.factorio.com/viewtopic.php?p=691981#p691981)
-- Recycler module slots are reduced to 2, so the 3rd and 4th modules in them will be deleted if you add this to an in-progress save. (balance changes like this are subject to change and I might put them back tbh)
 
 # CREDITS
 
-- Planetfall - Code
+- Planetfall - Code, scrap graphics, quality icons
 - [hurricane046](https://www.figma.com/proto/y1IQG08ZG2jIeJ5sTyF4MP/Factorio-Buildings?node-id=14934-304&node-type=frame&t=tk88gXWNIga60zMr-0&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2585%3A1158&hotspot-hints=0&hide-ui=1) - Machine Graphics

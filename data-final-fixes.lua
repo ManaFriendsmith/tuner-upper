@@ -5,7 +5,7 @@ local misc = require("__pf-functions__/misc")
 local function allow_recycling(recipe)
     if recipe.force_auto_recycle then return true end
     if (recipe.auto_recycle == false) or (recipe.auto_recycle_bypass == false) then return false end
-    if not recipe.category then recipe.categories={"crafting"} end
+    if not recipe.category then recipe.categories = { "crafting" } end
     if not data.raw["recipe-category"][recipe.category] then return false end
     if data.raw["recipe-category"][recipe.category].can_recycle == false then return false end
     return true
@@ -39,7 +39,7 @@ local function get_canonical_recipe(item)
                 end
             end
 
-            for k2, v2 in pairs(recipe.categories or {"crafting"}) do
+            for k2, v2 in pairs(recipe.categories or { "crafting" }) do
                 if v2 == "recycling" then
                     ok = false
                 end
@@ -75,6 +75,7 @@ for k, v in pairs(tune_up_data.recipes) do
             valid = true
             for k3, v3 in pairs(v2) do
                 if not (data.raw.fluid[v3[1]] or misc.GetPrototype(v3[1])) then
+                    --log(tostring(v3[1]) .. " is invalid ingredient for tuning up " .. k)
                     valid = false
                     break
                 end
@@ -99,15 +100,17 @@ for k, v in pairs(tune_up_data.recipes) do
             local new_recipe = {
                 name = k .. "-tuning-up",
                 type = "recipe",
-                localised_name = {"recipe-name.tuning-up", {"?", {"item-name." .. k}, {"entity-name." .. k}}},
+                localised_name = { "recipe-name.tuning-up", { "?", { "item-name." .. k }, { "entity-name." .. k } } },
                 subgroup = "tuning-" .. item_p.subgroup,
                 order = item_p.order,
                 hide_from_player_crafting = true,
                 categories = v.categories,
                 enabled = v.enabled,
-                energy_required = v.energy_required or (type(original_recipe) == "string" and original_recipe.energy_required) or 5,
+                energy_required = v.energy_required or
+                    (type(original_recipe) == "table" and original_recipe.energy_required) or 5,
                 ingredients = {},
                 products = {},
+                unlock_results = false,
                 maximum_productivity = 0,
                 allow_decomposition = false,
                 allow_as_intermediate = false,
@@ -117,7 +120,7 @@ for k, v in pairs(tune_up_data.recipes) do
             if mods["space-age"] then
                 new_recipe.surface_conditions = v.surface_conditions
             end
-            
+
             if item_p.icon then
                 new_recipe.icons = {
                     {
@@ -125,25 +128,62 @@ for k, v in pairs(tune_up_data.recipes) do
                         icon_size = item_p.icon_size
                     },
                     {
-                        icon = "__tuner-upper__/graphics/enhancement-overlay.png",
+                        icon = "__tuner-upper__/graphics/icons/enhancement-overlay.png",
                         icon_size = 64
                     }
                 }
             else
                 new_recipe.icons = table.deepcopy(item_p.icons)
-                table.insert(new_recipe.icons, {icon = "__tuner-upper__/graphics/enhancement-overlay.png", icon_size = 64})
+                table.insert(new_recipe.icons,
+                    { icon = "__tuner-upper__/graphics/icons/enhancement-overlay.png", icon_size = 64 })
             end
 
             rm.AddIngredient(new_recipe, k, v.count)
             rm.AddProduct(new_recipe, k, v.count)
             for k2, v2 in pairs(good_ingredients) do
                 if v2[3] == "byproduct" or v2[3] == "force-byproduct" then
-                    if settings.startup["tuner-upper-byproducts"].value or v2[3] == "force-byproduct" then
-                        rm.AddProduct(new_recipe, v2[1], v2[2])
+                    if settings.startup["tuner-upper-byproducts"].value == "Per-Recipe" or v2[3] == "force-byproduct" then
+                        local product = {
+                            type = data.raw.fluid[v2[1]] and "fluid" or "item",
+                            name = v2[1],
+                            amount = v2[2],
+                            independent_probability = v2[4] or 1,
+                            affected_by_quality = false
+                        }
+                        rm.AddProduct(new_recipe, product)
                     end
                 else
                     rm.AddIngredient(new_recipe, v2[1], v2[2])
                 end
+            end
+
+            if settings.startup["tuner-upper-byproducts"].value == "Standardised" and v.scrap_types then
+                local scrap_limit = v.scrap_limit or 99
+                local scrap_yield = v.scrap_yield or 1
+                local scrap_weight = 0
+                local valid_scrap = {}
+                for k2, v2 in pairs(v.scrap_types) do
+                    if data.raw.item[v2[1]] then
+                        table.insert(valid_scrap, v2)
+                        scrap_weight = scrap_weight + (v2[2] or 1)
+                        if #valid_scrap >= scrap_limit then
+                            break
+                        end
+                    end
+                end
+                scrap_weight = scrap_yield / scrap_weight
+                for k2, v2 in pairs(valid_scrap) do
+                    local output_count = (v2[2] or 1) * scrap_weight / (tune_up_data.scrap_values[v2[1]] or 1)
+                    local product = {
+                        type = "item",
+                        name = v2[1],
+                        amount = math.floor(output_count),
+                        extra_count_fraction = output_count % 1,
+                        affected_by_quality = false,
+                    }
+                    rm.AddProduct(new_recipe, product)
+                end
+
             end
 
             if v.result_is_always_fresh then
@@ -152,7 +192,7 @@ for k, v in pairs(tune_up_data.recipes) do
                 end
             end
 
-            data:extend({new_recipe})
+            data:extend({ new_recipe })
         end
     end
 end
@@ -160,10 +200,10 @@ end
 if not data.raw.furnace.recycler.effect_receiver then
     data.raw.furnace.recycler.effect_receiver = {}
 end
-data.raw.furnace.recycler.effect_receiver.base_effect = {quality=-0.16}
-data.raw.furnace.recycler.effect_receiver.quality_limits = {low=-100, high=0}
+data.raw.furnace.recycler.effect_receiver.base_effect = { quality = -0.16 }
+data.raw.furnace.recycler.effect_receiver.quality_limits = { low = -100, high = 0 }
 for k, v in pairs(data.raw.quality) do
-    if v.name  ~= normal then
+    if v.name ~= "normal" then
         v.previous_probability = 1
     end
 end
@@ -173,12 +213,13 @@ data.raw.module["speed-module-2"].effect.quality = -0.03
 data.raw.module["speed-module-3"].effect.quality = -0.05
 
 if mods["space-age"] then
-    data.raw.recipe["casting-low-density-structure"].hidden = true
-    data.raw.recipe["casting-low-density-structure"].hidden_in_factoriopedia = true
-    data.raw.recipe["low-density-structure"].categories={"crafting", "metallurgy"}
+    --data.raw.recipe["casting-low-density-structure"].hidden = true
+    --data.raw.recipe["casting-low-density-structure"].hidden_in_factoriopedia = true
+    --data.raw.recipe["low-density-structure"].categories = { "crafting", "metallurgy" }
 
-    tm.RemoveUnlock("foundry", "casting-low-density-structure")
-    tm.RemoveUnlock("low-density-structure-productivity", {type="change-recipe-productivity",recipe="casting-low-density-structure",change=0.1})
+    --tm.RemoveUnlock("foundry", "casting-low-density-structure")
+    --tm.RemoveUnlock("low-density-structure-productivity",
+        --{ type = "change-recipe-productivity", recipe = "casting-low-density-structure", change = 0.1 })
 
     if not (mods["pf-sa-compat"] and misc.difficulty > 1) then
         data.raw.technology["low-density-structure-productivity"].max_level = 10
@@ -206,6 +247,12 @@ if settings.startup["tuner-upper-buff-quality-science"] then
         mul = mul + 2
         if q.next then
             q = data.raw.quality[q.next]
+            if q.level > 4 then
+                mul = mul + 1
+            end
+            if q.level > 7 then
+                mul = mul + 1
+            end
         else
             q = nil
         end
@@ -225,7 +272,8 @@ if settings.startup["tuner-upper-nerf-quality-power"] then
         --v.default_multiplier = 1 + (v.level * 0.1)
         v.equipment_grid_width_bonus = 0
 
-        v.crafting_machine_speed_multiplier = (((v.crafting_machine_speed_multiplier or v.default_multiplier) - 1) / 3) + 1
+        v.crafting_machine_speed_multiplier = (((v.crafting_machine_speed_multiplier or v.default_multiplier) - 1) / 3) +
+            1
         if v.crafting_machine_energy_usage_multiplier then
             v.crafting_machine_energy_usage_multiplier = ((v.crafting_machine_energy_usage_multiplier - 1) / 3) + 1
         end
@@ -274,7 +322,9 @@ if settings.startup["tuner-upper-nerf-quality-power"] then
     end
 
     for k, v in pairs(data.raw.beacon) do
-        v.distribution_effectivity_bonus_per_quality_level = v.distribution_effectivity_bonus_per_quality_level / 2
+        if v.distribution_effectivity_bonus_per_quality_level then
+            v.distribution_effectivity_bonus_per_quality_level = v.distribution_effectivity_bonus_per_quality_level / 2
+        end
     end
 end
 
@@ -294,6 +344,31 @@ for k, v in pairs(data.raw["mining-drill"]) do
             end
         end
     else
-        v.allowed_effects = {"speed", "consumption", "productivity", "pollution"}
+        v.allowed_effects = { "speed", "consumption", "productivity", "pollution" }
+    end
+end
+
+if mods["space-age"] then
+    local function nerf_casting(recipe, adjustment)
+        local rec = data.raw.recipe[recipe]
+        if rec then
+            for k, v in pairs(rec.results or {}) do
+                v.quality_change = adjustment
+                v.quality_min = "normal"
+            end
+        end
+    end
+
+    nerf_casting("casting-pipe-to-ground", -2)
+    nerf_casting("casting-low-density-structure", -2)
+    nerf_casting("lithium", -1)
+    if mods["BrassTacksMk2"] then
+        nerf_casting("casting-pipe", -2)
+        nerf_casting("casting-iron-gear-wheel", -2)
+        nerf_casting("casting-flywheel", -2)
+        nerf_casting("hot-dip-galvanized-steel", -2)
+        nerf_casting("hot-dip-galvanized-rod", -2)
+        nerf_casting("hot-dip-galvanized-panel", -2)
+        nerf_casting("hot-dip-galvanized-tubing", -2)
     end
 end

@@ -1,9 +1,10 @@
 data:extend({
     {
-      type = "bool-setting",
+      type = "string-setting",
       name = "tuner-upper-byproducts",
       setting_type = "startup",
-      default_value = false,
+      default_value = "Disabled",
+      allowed_values = {"Disabled", "Per-Recipe", "Standardised"},
       order = "a"
     },
     {
@@ -19,5 +20,13 @@ data:extend({
       setting_type = "startup",
       default_value = true,
       order = "c"
-    }
+    },
+    {
+      type = "string-setting",
+      name = "tuner-upper-extra-tiers",
+      setting_type = "startup",
+      default_value = "Off",
+      allowed_values = {"Off", "+3", "+5"},
+      order = "d"
+    },
   })
